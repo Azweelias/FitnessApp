@@ -6,12 +6,16 @@
 //
 
 import SwiftUI
+import FatSecretSwift
 
 @main
 struct FitFriendApp: App {
+    @StateObject var viewModel = FoodViewModel()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(viewModel)
         }
     }
 }
