@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		846393B62D7C0B7C00B03264 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 846393B52D7C0B7C00B03264 /* FirebaseAnalytics */; };
+		846393B92D7C0E1300B03264 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 846393B82D7C0E1300B03264 /* FirebaseAuth */; };
+		846394112D7C154B00B03264 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 846394102D7C154B00B03264 /* FirebaseFirestore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		843E77272D77F5DD008A7752 /* FitFriend.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FitFriend.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +29,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				846393B62D7C0B7C00B03264 /* FirebaseAnalytics in Frameworks */,
+				846393B92D7C0E1300B03264 /* FirebaseAuth in Frameworks */,
+				846394112D7C154B00B03264 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -33,6 +42,7 @@
 			isa = PBXGroup;
 			children = (
 				843E77292D77F5DD008A7752 /* FitFriend */,
+				846393B72D7C0E1300B03264 /* Frameworks */,
 				843E77282D77F5DD008A7752 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -43,6 +53,13 @@
 				843E77272D77F5DD008A7752 /* FitFriend.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		846393B72D7C0E1300B03264 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -65,6 +82,9 @@
 			);
 			name = FitFriend;
 			packageProductDependencies = (
+				846393B52D7C0B7C00B03264 /* FirebaseAnalytics */,
+				846393B82D7C0E1300B03264 /* FirebaseAuth */,
+				846394102D7C154B00B03264 /* FirebaseFirestore */,
 			);
 			productName = FitFriend;
 			productReference = 843E77272D77F5DD008A7752 /* FitFriend.app */;
@@ -95,6 +115,7 @@
 			mainGroup = 843E771E2D77F5DD008A7752;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				846393B42D7C0B7C00B03264 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 843E77282D77F5DD008A7752 /* Products */;
@@ -326,6 +347,35 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		846393B42D7C0B7C00B03264 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.9.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		846393B52D7C0B7C00B03264 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 846393B42D7C0B7C00B03264 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		846393B82D7C0E1300B03264 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 846393B42D7C0B7C00B03264 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		846394102D7C154B00B03264 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 846393B42D7C0B7C00B03264 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 843E771F2D77F5DD008A7752 /* Project object */;
 }
