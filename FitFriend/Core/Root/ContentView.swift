@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FatSecretSwift
 
 struct ContentView: View {
     @EnvironmentObject var viewModel: AuthViewModel
@@ -24,15 +23,9 @@ struct ContentView: View {
         Group {
             if viewModel.userSession != nil {
                 TabView (selection: $selectedTab) {
-                    VStack {
-                        Button {
-                            viewModel.signOut()
-                        } label : {
-                            Text("sign out")
-                        }
-                    }
+                    
                     // Homepage tab
-//                    Homepage()
+                    DashboardView()
 //                        .environmentObject(locationManager)
 //                        .onAppear {
 //                            if !hasAppeared {
@@ -40,27 +33,33 @@ struct ContentView: View {
 //                                hasAppeared = true
 //                            }
 //                        }
-//                        .tabItem {
-//                            Label("Home", systemImage: "house")
-//                        }
-//                        .tag(0)
-//                    
+                        .tabItem {
+                            Label("Home", systemImage: "house")
+                        }
+                        .tag(0)
+                    
+                    SearchFoodView()
+                        .tabItem {
+                            Label("Search", systemImage: "magnifyingglass")
+                        }
+                        .tag(1)
+//
 //                    // Add new tab
-//                    AddNewView()
+//                    FoodLogView()
 //                        .tabItem {
-//                            Label("New Device", systemImage: "plus.rectangle")
-//                                
+//                            Label("Food Log", systemImage: "fork.knife")
+//
 //                        }
 //                        .tag(1)
-//                    
-//                    // Profile tab
-//                    ProfileView()
-//                        .tabItem {
-//                            Label("Profile", systemImage: "person.circle")
-//                        }
-//                        .tag(2)
+//
+                    // Profile tab
+                    ProfileView()
+                        .tabItem {
+                            Label("Profile", systemImage: "person.circle")
+                        }
+                        .tag(2)
                 }
-                .accentColor(.black)
+                .accentColor(.white)
             } else {
                 SignInEmailView()
                     .onAppear {

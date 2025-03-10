@@ -19,7 +19,7 @@ struct SignUpView: View {
                 LinearGradient(gradient: Gradient(colors: [Color.blue.opacity(0.8), Color.white.opacity(0.8)]), startPoint: .top, endPoint: .bottom)
                     .edgesIgnoringSafeArea(.all)
                 VStack {
-                    Text("Sign-Up Info")
+                    Text("Create Account")
                         .font(.title)
                         .fontWeight(.bold)
                         .padding(.top, 10)
@@ -73,6 +73,7 @@ struct SignUpView: View {
                     
                     NavigationLink {
                         SignUpView2(email: email, fullName: fullName, password: password)
+                            .navigationBarBackButtonHidden(true)
                     } label: {
                         HStack {
                             Text("Next")

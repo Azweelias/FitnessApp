@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import FirebaseCore
 
 class NutritionManager: ObservableObject {
     private let appID = "830f2a4a"
@@ -46,6 +47,31 @@ class NutritionManager: ObservableObject {
         return decodedData
         
     }
+    
+    func getBFoodDetails(id: String)
+    async throws -> FoodResponse{
+        guard let urlString = URL(string: "\(baseURL)/search/item?nix_item_id=\(id)") else {
+            fatalError("Missing URL!") }
+        
+        
+        var request = URLRequest(url: urlString)
+        request.httpMethod = "GET"
+        request.addValue(appID, forHTTPHeaderField: "x-app-id")
+        request.addValue(appKey, forHTTPHeaderField: "x-app-key")
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard (response as? HTTPURLResponse)?.statusCode == 200 else {fatalError("Error fetching data!") }
+        
+        let decodedData = try JSONDecoder().decode(FoodResponse.self, from: data)
+        
+        return decodedData
+        
+    }
+    
 }
 
 struct SearchResponse: Decodable {
@@ -76,5 +102,53 @@ struct SearchResponse: Decodable {
         var fCalories: String {
             return nf_calories == floor(nf_calories) ? "\(Int(nf_calories))" : String(format: "%.1f", nf_calories)
         }
+    }
+}
+
+// Root structure for decoding the response
+struct FoodResponse: Decodable {
+    var foods: [Food]
+    
+    // Model for the individual food item
+    struct Food: Decodable {
+        var food_name: String
+        var brand_name: String
+        var serving_qty: Double
+        var serving_unit: String
+        var serving_weight_grams: Double
+        var nf_metric_qty: Double?
+        var nf_metric_uom: String?
+        var nf_calories: Double
+        var nf_total_fat: Double
+        var nf_total_carbohydrate: Double
+        var nf_dietary_fiber: Double?
+        var nf_sugars: Double
+        var nf_protein: Double
+        
+        var fServingQty: String {
+            return serving_qty == floor(serving_qty) ? "\(Int(serving_qty))" : String(format: "%.1f", serving_qty)
+        }
+        
+        var fServingWeightGrams: String {
+            return serving_weight_grams == floor(serving_weight_grams) ? "\(Int(serving_weight_grams))" : String(format: "%.1f", serving_weight_grams)
+        }
+        
+        var fCalories: String {
+            return nf_calories == floor(nf_calories) ? "\(Int(nf_calories))" : String(format: "%.1f", nf_calories)
+        }
+        
+        var fTotalFat: String {
+            return nf_total_fat == floor(nf_total_fat) ? "\(Int(nf_total_fat))" : String(format: "%.1f", nf_total_fat)
+        }
+        
+        var fTotalCarb: String {
+            return nf_total_carbohydrate == floor(nf_total_carbohydrate) ? "\(Int(nf_total_carbohydrate))" : String(format: "%.1f", nf_total_carbohydrate)
+        }
+        
+        var fTotalProtein: String {
+            return nf_protein == floor(nf_protein) ? "\(Int(nf_protein))" : String(format: "%.1f", nf_protein)
+        }
+        
+        var date: Timestamp
     }
 }
