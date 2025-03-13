@@ -1,6 +1,8 @@
 import SwiftUI
+import FirebaseCore
 
 struct SearchFoodView: View {
+    @EnvironmentObject var viewModel: AuthViewModel
     @StateObject private var nutritionManager = NutritionManager()
     @State var searchQuery = ""
     @State var searchResults: [SearchResponse.CommonFoodItem] = []
@@ -9,21 +11,17 @@ struct SearchFoodView: View {
     @State var isLoading = false
     @State var errorMessage: String?
     @State private var showAddedPopup = false
+    @State var mealTime: String
+    @Environment(\.dismiss) var dismiss
+    let timeStamp: Timestamp
 
     var body: some View {
-        NavigationStack {
+        NavigationView() {
             ZStack {
                 LinearGradient(gradient: Gradient(colors: [Color.blue.opacity(0.9), Color.white.opacity(0.9)]), startPoint: .top, endPoint: .bottom)
                     .edgesIgnoringSafeArea(.all)
                 
                 VStack(spacing: 20) {
-                    // Header
-                    Text("Food Search")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundColor(.black)
-                        .padding(.top, 5)
-                    
                     // Search Bar
                     HStack(spacing: 12) {
                         TextField("Search for food...", text: $searchQuery)
@@ -65,7 +63,7 @@ struct SearchFoodView: View {
                                     ForEach(searchResultsB, id: \.food_name) { item in
                                         HStack(spacing: 15) {
                                             VStack(alignment: .leading) {
-                                                NavigationLink(destination: FoodDetailsView(bFoodItem: item))
+                                                NavigationLink(destination: FoodDetailsView(bFoodItem: item.nix_item_id))
                                                                {
                                                     Text(item.food_name.capitalized)
                                                         .font(.headline)
@@ -80,6 +78,7 @@ struct SearchFoodView: View {
                                             
                                             Button(action: {
                                                 Task {
+                                                    await getBFoodDetAndAdd(bFoodId: item.nix_item_id)
                                                     showAddedPopup = true
                                                     DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
                                                         showAddedPopup = false
@@ -136,7 +135,7 @@ struct SearchFoodView: View {
                         }
                     }
                 }
-                .padding()
+                .padding(.horizontal)
                 
                 // Pop-up Notification
                 if showAddedPopup {
@@ -147,6 +146,24 @@ struct SearchFoodView: View {
                         .cornerRadius(10)
                         .zIndex(1)
                 }
+            }
+        }
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                HStack {
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        HStack {
+                            Image(systemName: "chevron.left")
+                                .foregroundStyle(Color.black)
+                            Text("Back")
+                                .foregroundStyle(Color.black)
+                        }
+                    }
+                }
+                .padding(.bottom)
             }
         }
     }
@@ -168,8 +185,20 @@ struct SearchFoodView: View {
 
         isLoading = false
     }
+    public func getBFoodDetAndAdd(bFoodId: String) async {
+        do {
+            let response = try await NutritionManager().getBFoodDetails(id: bFoodId)
+            bFoodDetail = response.foods.first
+            bFoodDetail?.dateAdded = timeStamp
+            bFoodDetail?.mealTime = mealTime
+            try await viewModel.addFoodToUser(food: bFoodDetail!)
+        } catch {
+            errorMessage = String(describing: error)
+        }
+    }
 }
 
 #Preview {
-    SearchFoodView()
+    SearchFoodView(mealTime: "Breakfast", timeStamp: Timestamp(date: Date()))
+        .environmentObject(AuthViewModel())
 }

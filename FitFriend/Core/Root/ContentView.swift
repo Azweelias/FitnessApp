@@ -10,7 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var viewModel: AuthViewModel
     
-    @State var selectedTab = 0
+    @State var selectedTab = 2
     @State private var hasAppeared = false
     
     init() {
@@ -38,9 +38,10 @@ struct ContentView: View {
                         }
                         .tag(0)
                     
-                    SearchFoodView()
+                    // Food Log tab
+                    FoodLogView()
                         .tabItem {
-                            Label("Search", systemImage: "magnifyingglass")
+                            Label("Diary", systemImage: "fork.knife")
                         }
                         .tag(1)
 //

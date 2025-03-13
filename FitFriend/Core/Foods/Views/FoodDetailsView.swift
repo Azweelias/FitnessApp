@@ -1,63 +1,160 @@
 import SwiftUI
 
 struct FoodDetailsView: View {
-    let bFoodItem: SearchResponse.BrandedFoodItem
-    @State private var bFoodDetail: FoodResponse.Food?
+    let bFoodItem: String
+    @State var bFoodDetail: FoodResponse.Food?
     @State private var errorMessage: String?
     @State var showNutrition: Bool = false
+    
+    @Environment(\.dismiss) var dismiss
 
     var body: some View {
-        VStack(spacing: 20) {
-            if let detail = bFoodDetail {
-                Text(detail.food_name)
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-
-                Text("\(detail.fCalories) cal")
-                    .font(.title2)
-                    .foregroundColor(.black)
-
-                Text("\(detail.fServingQty) \(detail.serving_unit) (\(detail.fServingWeightGrams) g)")
-                    .font(.body)
-
-                Text("Brand: \(detail.brand_name)")
-                    .font(.subheadline)
-                    .foregroundColor(.black)
-                
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("Nutrients:")
-                        .font(.headline)
-                    Text("Carbs: \(detail.fTotalCarb) g")
-                    Text("Protein: \(detail.fTotalProtein) g")
-                    Text("Fats: \(detail.fTotalFat) g")
+        ZStack {
+            LinearGradient(gradient: Gradient(colors: [Color.cyan.opacity(0.9), Color.white.opacity(0.9)]), startPoint: .top, endPoint: .bottom)
+                .edgesIgnoringSafeArea(.all)
+            VStack(spacing: 15) {
+                if let detail = bFoodDetail {
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text(detail.food_name)
+                                .font(.headline)
+                                .fontWeight(.bold)
+                            
+                            Text("\(detail.brand_name)")
+                                .font(.subheadline)
+                                .foregroundColor(.black)
+                        }
+                        Spacer()
+                    }
+                    
+                    HStack {
+                        Text("Serving Size")
+                            .font(.title3)
+                        
+                        Spacer()
+                        
+                        Text ("\(detail.fServingQty) \(detail.serving_unit) (\(detail.fServingWeightGrams) g)")
+                            .font(.body)
+                    }
+                    
+                    HStack {
+                        Text("Nutrients")
+                            .font(.headline)
+                            .underline()
+                    }
+                    .padding(.vertical)
+                    
+                    HStack() {
+                        ZStack {
+                            Circle()
+                                .fill(Color.gray.opacity(0.5)) // Set the circle's background color to navy
+                                .frame(width: 80, height: 80) // Set the size of the circle
+                            
+                            VStack {
+                                Text("\(detail.fCalories)") // Display the calorie count
+                                    .font(.headline)
+                                    .foregroundColor(.black) // Set the text color to white to contrast with the navy background
+                                    .bold()
+                                Text("cal")
+                                    .font(.subheadline)
+                                    .foregroundColor(.black)
+                            }
+                        }
+                        
+                        Spacer()
+                        
+                        VStack {
+                            Text("\(detail.fTotalCarb) g")
+                                .fontWeight(.semibold)
+                            Text("Carbs")
+                                .font(.caption)
+                        }
+                        
+                        Spacer()
+                        
+                        VStack {
+                            Text("\(detail.fTotalFat) g")
+                                .fontWeight(.semibold)
+                            Text("Fat")
+                                .font(.caption)
+                        }
+                        
+                        Spacer()
+                        
+                        VStack {
+                            Text("\(detail.fTotalProtein) g")
+                                .fontWeight(.semibold)
+                            Text("Protein")
+                                .font(.caption)
+                        }
+                    }
+                    
+                    HStack {
+                        Text("Nutrition Info:")
+                            .fontWeight(.semibold)
+                            .underline()
+                        Spacer()
+                    }
+                    .padding(.vertical)
+                    
+                    NutrInfoRowView(label: "Saturated Fats", nutrInfo: detail.fSaturatedFat, unit: "g")
+                    NutrInfoRowView(label: "Cholesterol", nutrInfo: detail.fCholesterol, unit: "mg")
+                    NutrInfoRowView(label: "Dietary Fiber", nutrInfo: detail.fDietaryFiber, unit: "g")
+                    NutrInfoRowView(label: "Sugar", nutrInfo: detail.fSugar, unit: "g")
+                    NutrInfoRowView(label: "Sodium", nutrInfo: detail.fSodium, unit: "mg")
+                    NutrInfoRowView(label: "Potassium", nutrInfo: detail.fPotassium, unit: "mg")
+                    
+                } else if let errorMessage = errorMessage {
+                    Text("Error: \(errorMessage)")
+                        .foregroundColor(.red)
+                } else {
+                    ProgressView("Loading...")
                 }
-                .padding()
-                .background(Color.gray.opacity(0.5))
-                .cornerRadius(10)
                 
-            } else if let errorMessage = errorMessage {
-                Text("Error: \(errorMessage)")
-                    .foregroundColor(.red)
-            } else {
-                ProgressView("Loading...")
+                Spacer()
             }
-
-            Spacer()
-        }
-        .padding()
-        .navigationTitle("Food Details")
-        .task {
-            await getBFoodDet(bFoodId: bFoodItem.nix_item_id)
+            .padding()
+            .task {
+                //await getBFoodDet(bFoodId: bFoodItem) //TODO: Uncomment before demo
+            }
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    HStack {
+                        Button(action: {
+                            dismiss()
+                        }) {
+                            HStack {
+                                Image(systemName: "chevron.left")
+                                    .foregroundStyle(Color.black)
+                                Text("Results")
+                                    .foregroundStyle(Color.black)
+                            }
+                        }
+                        
+                        Text("Food Details")
+                            .foregroundStyle(Color.black)
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .padding()
+                    }
+                    .padding(.bottom)
+                }
+            }
         }
     }
 
     // Async data-fetching function
-    private func getBFoodDet(bFoodId: String) async {
+    public func getBFoodDet(bFoodId: String) async {
         do {
             let response = try await NutritionManager().getBFoodDetails(id: bFoodId)
             bFoodDetail = response.foods.first
         } catch {
-            errorMessage = String(describing: error)
+            print(String(describing: error))
+            errorMessage = "An Error Occurred"
         }
     }
+}
+#Preview {
+    FoodDetailsView(bFoodItem: "2238121706c68498234d2778", bFoodDetail: previewFoodDetail.foods[0])
 }

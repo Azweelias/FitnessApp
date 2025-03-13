@@ -81,4 +81,17 @@ class AuthViewModel: ObservableObject {
         guard let snapshot = try? await Firestore.firestore().collection("users").document(uid).getDocument() else { return }
         self.currentUser = try? snapshot.data(as: User.self)
     }
+    
+    func addFoodToUser(food: FoodResponse.Food) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let foodRef = Firestore.firestore().collection("users").document(uid).collection("foods").document()
+
+            do {
+                try foodRef.setData(from: food, merge: true)
+                print("Food successfully added to Firestore with date!")
+            } catch {
+                print("Error adding food to Firestore: \(String(describing: error))")
+                throw error
+            }
+        }
 }

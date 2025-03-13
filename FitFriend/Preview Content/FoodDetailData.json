@@ -1,0 +1,87 @@
+{
+    "foods": [
+        {
+            "food_name": "10 Oz AAA Sirloin Steak",
+            "brand_name": "Montana's BBQ & Bar",
+            "serving_qty": 1,
+            "serving_unit": "Serving",
+            "serving_weight_grams": 349,
+            "nf_metric_qty": null,
+            "nf_metric_uom": null,
+            "nf_calories": 760,
+            "nf_total_fat": 38,
+            "nf_saturated_fat": 11,
+            "nf_cholesterol": 225,
+            "nf_sodium": 2120,
+            "nf_total_carbohydrate": 21,
+            "nf_dietary_fiber": 2,
+            "nf_sugars": 3,
+            "nf_protein": 83,
+            "nf_potassium": null,
+            "nf_p": null,
+            "full_nutrients": [
+                {
+                    "attr_id": 203,
+                    "value": 83
+                },
+                {
+                    "attr_id": 204,
+                    "value": 38
+                },
+                {
+                    "attr_id": 205,
+                    "value": 21
+                },
+                {
+                    "attr_id": 208,
+                    "value": 760
+                },
+                {
+                    "attr_id": 269,
+                    "value": 3
+                },
+                {
+                    "attr_id": 291,
+                    "value": 2
+                },
+                {
+                    "attr_id": 307,
+                    "value": 2120
+                },
+                {
+                    "attr_id": 601,
+                    "value": 225
+                },
+                {
+                    "attr_id": 605,
+                    "value": 1
+                },
+                {
+                    "attr_id": 606,
+                    "value": 11
+                }
+            ],
+            "nix_brand_name": "Montana's BBQ & Bar",
+            "nix_brand_id": "6129263489fc0ff60e1687fd",
+            "nix_item_name": "10 Oz AAA Sirloin Steak",
+            "nix_item_id": "2238121706c68498234d2778",
+            "metadata": {},
+            "source": 8,
+            "ndb_no": null,
+            "alt_measures": null,
+            "lat": null,
+            "lng": null,
+            "photo": {
+                "thumb": "https://d2eawub7utcl6.cloudfront.net/images/nix-apple-grey.png",
+                "highres": null,
+                "is_user_uploaded": false
+            },
+            "note": null,
+            "class_code": null,
+            "brick_code": null,
+            "tag_id": null,
+            "updated_at": "2024-07-17T20:48:45+00:00",
+            "nf_ingredient_statement": null
+        }
+    ]
+}

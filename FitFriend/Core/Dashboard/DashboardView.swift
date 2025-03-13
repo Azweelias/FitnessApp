@@ -40,7 +40,7 @@ struct DashboardView: View {
                                     .stroke(Color.gray.opacity(0.3), lineWidth: 10)
                                     .frame(width: 150, height: 150)
                                 Circle()
-                                    .trim(from: 0, to: 0.7) // Example Progress
+                                    .trim(from: 0, to: 0.6) // food div by goal 
                                     .stroke(Color.blue, lineWidth: 10)
                                     .rotationEffect(.degrees(-90))
                                     .frame(width: 150, height: 150)
