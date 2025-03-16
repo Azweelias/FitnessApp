@@ -15,6 +15,10 @@ struct User: Identifiable, Codable {
     let weight: Double
     let age: Int
     let gender: String
+    let goalCalories: Int
+    let carbPercent: Double
+    let fatPercent: Double
+    let proPercent: Double
     
     var initials: String {
         let formatter = PersonNameComponentsFormatter()
@@ -37,5 +41,5 @@ struct User: Identifiable, Codable {
 }
 
 extension User {
-    static var MOCK_USER = User(id: NSUUID().uuidString, fullName: "Eli Dawarpana", email: "test@gmail.com", height: 72.0, weight: 200.0, age: 26, gender: "Male")
+    static var MOCK_USER = User(id: NSUUID().uuidString, fullName: "Eli Dawarpana", email: "test@gmail.com", height: 72.0, weight: 200.0, age: 26, gender: "Male", goalCalories: 2000, carbPercent: 0.45, fatPercent: 0.25, proPercent: 0.3)
 }

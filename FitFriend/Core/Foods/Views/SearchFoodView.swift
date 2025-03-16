@@ -13,7 +13,7 @@ struct SearchFoodView: View {
     @State private var showAddedPopup = false
     @State var mealTime: String
     @Environment(\.dismiss) var dismiss
-    let timeStamp: Timestamp
+    let SelectedDate: Date
 
     var body: some View {
         NavigationView() {
@@ -189,7 +189,12 @@ struct SearchFoodView: View {
         do {
             let response = try await NutritionManager().getBFoodDetails(id: bFoodId)
             bFoodDetail = response.foods.first
-            bFoodDetail?.dateAdded = timeStamp
+            if (SelectedDate == Date())
+            {
+                bFoodDetail?.dateAdded = Timestamp(date: Date())
+            } else {
+                bFoodDetail?.dateAdded = Timestamp(date: SelectedDate)
+            }
             bFoodDetail?.mealTime = mealTime
             try await viewModel.addFoodToUser(food: bFoodDetail!)
         } catch {
@@ -199,6 +204,6 @@ struct SearchFoodView: View {
 }
 
 #Preview {
-    SearchFoodView(mealTime: "Breakfast", timeStamp: Timestamp(date: Date()))
+    SearchFoodView(mealTime: "Breakfast", SelectedDate: Date())
         .environmentObject(AuthViewModel())
 }

@@ -4,14 +4,9 @@ import FirebaseFirestore
 
 struct FoodLogView: View {
     @EnvironmentObject var viewModel: AuthViewModel
+    @StateObject var foodViewModel = FoodViewModel()
     @State private var selectedDate = Date()
-    @State private var timeStamp = Timestamp(date: Date())
-    @State var foodEntries: [FoodResponse.Food] = []
-    @State private var showingSearchView = false
-    @State private var isLoading = false
-    @State private var errorMessage: String?
-    @State var totalCal: Int = 0
-
+    
     var body: some View {
         NavigationStack {
             VStack {
@@ -19,11 +14,10 @@ struct FoodLogView: View {
                 HStack {
                     Button(action: {
                         selectedDate = Calendar.current.date(byAdding: .day, value: -1, to: selectedDate) ?? selectedDate
-                        Task { await fetchFoodEntries() }
-                        timeStamp = Timestamp(date: selectedDate)
+                        foodViewModel.startListening(for: selectedDate)
                     }) {
                         Image(systemName: "chevron.left")
-                            .foregroundStyle(Color.black)
+                            .foregroundStyle(Color.blue)
                     }
                     Spacer()
                     Text(formattedDate(selectedDate))
@@ -32,39 +26,45 @@ struct FoodLogView: View {
                     Spacer()
                     Button(action: {
                         selectedDate = Calendar.current.date(byAdding: .day, value: 1, to: selectedDate) ?? selectedDate
-                        Task { await fetchFoodEntries() }
-                        timeStamp = Timestamp(date: selectedDate)
+                        foodViewModel.startListening(for: selectedDate)
                     }) {
                         Image(systemName: "chevron.right")
-                            .foregroundStyle(Color.black)
+                            .foregroundStyle(Color.blue)
                     }
                 }
                 .padding()
-                //
-                DailyTotalBarView(gCals: 1800, tCals: 1000)
 
-                if isLoading {
+                // Daily Total Bar View
+                DailyTotalBarView(gCals: viewModel.currentUser?.goalCalories ?? 2000, tCals: foodViewModel.totalCalories)
+                    .offset(y: 7)
+
+                if foodViewModel.isLoading {
                     ProgressView("Loading...")
                         .padding(.vertical, 270)
-                } else if let errorMessage = errorMessage {
+                } else if let errorMessage = foodViewModel.errorMessage {
                     Text(errorMessage)
                         .foregroundColor(.red)
                         .padding()
                 } else {
                     // Food Log
                     List {
-                        if foodEntries.isEmpty {
+                        if foodViewModel.foodEntries.isEmpty {
                             Text("No food entries found for this date.")
                                 .foregroundColor(.gray)
                         } else {
-                            ForEach(foodEntries, id: \ .dateAdded) { entry in
+                            ForEach(foodViewModel.foodEntries, id: \.dateAdded) { entry in
                                 HStack {
                                     VStack(alignment: .leading) {
                                         Text("\(entry.food_name)")
                                             .font(.headline)
-                                        Text("\(entry.fServingQty) \(entry.serving_unit)")
-                                            .font(.subheadline)
-                                            .foregroundColor(.gray)
+                                        HStack {
+                                            Text("\(entry.brand_name),")
+                                                .font(.subheadline)
+                                                .foregroundColor(.gray)
+                                            Text("\(entry.fServingQty) \(entry.serving_unit)")
+                                                .font(.subheadline)
+                                                .foregroundColor(.gray)
+                                        }
                                     }
                                     Spacer()
                                     Text("\(entry.fCalories) cal")
@@ -76,7 +76,7 @@ struct FoodLogView: View {
                 }
 
                 // Add Food Button
-                NavigationLink(destination: SearchFoodView(mealTime: "Breakfast", timeStamp: timeStamp)) {
+                NavigationLink(destination: SearchFoodView(mealTime: "Breakfast", SelectedDate: selectedDate)) {
                     Text("Add Food")
                         .foregroundColor(.blue)
                         .fontWeight(.semibold)
@@ -89,40 +89,13 @@ struct FoodLogView: View {
                 .padding(.horizontal)
                 .padding(.bottom)
             }
-            .task {
-                await fetchFoodEntries()
+            .onAppear {
+                foodViewModel.startListening(for: selectedDate)
+            }
+            .onDisappear {
+                foodViewModel.stopListening()
             }
         }
-    }
-
-    private func fetchFoodEntries() async {
-        guard let userID = Auth.auth().currentUser?.uid else { return }
-        isLoading = true
-        errorMessage = nil
-
-        let calendar = Calendar.current
-        let startOfDay = calendar.startOfDay(for: selectedDate)
-        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
-
-        let startTimestamp = Timestamp(date: startOfDay)
-        let endTimestamp = Timestamp(date: endOfDay)
-
-        do {
-            let snapshot = try await Firestore.firestore()
-                .collection("users").document(userID)
-                .collection("foods")
-                .whereField("dateAdded", isGreaterThanOrEqualTo: startTimestamp)
-                .whereField("dateAdded", isLessThan: endTimestamp)
-                .getDocuments()
-
-            self.foodEntries = snapshot.documents.compactMap { document in
-                try? document.data(as: FoodResponse.Food.self)
-            }
-        } catch {
-            errorMessage = "Error fetching food entries: \(error.localizedDescription)"
-        }
-
-        isLoading = false
     }
 
     private func formattedDate(_ date: Date) -> String {
@@ -141,6 +114,7 @@ struct FoodLogView: View {
         }
     }
 }
+
 
 struct FoodEntry: Identifiable, Codable {
     @DocumentID var id: String?

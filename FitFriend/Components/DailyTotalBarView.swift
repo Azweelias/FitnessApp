@@ -19,7 +19,7 @@ struct DailyTotalBarView: View {
                     .font(.headline)
                 Spacer()
             }
-            .padding(.top)
+            .padding(.top, 6)
             .padding(.horizontal)
             HStack(alignment: .center, spacing: 20) {
                 VStack {
@@ -51,7 +51,7 @@ struct DailyTotalBarView: View {
                         .foregroundColor(Color.blue)
                         .font(.headline)
                         .fontWeight(.semibold)
-                    Text("Remained")
+                    Text("Remaining")
                         .font(.caption2)
                         
                 }
@@ -59,7 +59,7 @@ struct DailyTotalBarView: View {
             .padding(.bottom)
             .padding(.top, 2)
         }
-        .background(Color.gray.opacity(0.2))
+        .background(Color.gray.opacity(0.4))
     }
 }
 

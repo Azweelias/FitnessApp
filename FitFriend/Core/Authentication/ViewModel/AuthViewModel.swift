@@ -48,7 +48,11 @@ class AuthViewModel: ObservableObject {
                 height: height,
                 weight: weight,
                 age: age,
-                gender: gender
+                gender: gender,
+                goalCalories: 2000,
+                carbPercent: 0.45,
+                fatPercent: 0.25,
+                proPercent: 0.3                
             )
             
             let encodedUser = try Firestore.Encoder().encode(user)
@@ -78,9 +82,18 @@ class AuthViewModel: ObservableObject {
     
     func fetchUser() async {
         guard let uid = Auth.auth().currentUser?.uid else { return }
-        guard let snapshot = try? await Firestore.firestore().collection("users").document(uid).getDocument() else { return }
-        self.currentUser = try? snapshot.data(as: User.self)
+        
+        Firestore.firestore().collection("users").document(uid).addSnapshotListener { snapshot, error in
+            if let error = error {
+                print("DEBUG: Error fetching user updates: \(error.localizedDescription)")
+                return
+            }
+            
+            guard let snapshot = snapshot else { return }
+            self.currentUser = try? snapshot.data(as: User.self)
+        }
     }
+
     
     func addFoodToUser(food: FoodResponse.Food) async throws {
         guard let uid = Auth.auth().currentUser?.uid else { return }

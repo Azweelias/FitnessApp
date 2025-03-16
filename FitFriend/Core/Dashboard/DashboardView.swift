@@ -2,9 +2,21 @@ import SwiftUI
 
 struct DashboardView: View {
     @EnvironmentObject var viewModel: AuthViewModel
+    @StateObject var foodViewModel = FoodViewModel()
     
     var body: some View {
         if let user = viewModel.currentUser {
+            
+            //Variables for Macros, goal macros
+            let goalPro = Int(user.proPercent * Double(user.goalCalories)/4)
+            let goalCarb = Int(user.carbPercent * Double(user.goalCalories)/4)
+            let goalFat = Int(user.fatPercent * Double(user.goalCalories)/9)
+            
+            //Consumed macros
+            let totalProtein = foodViewModel.totalProtein
+            let totalCarb = foodViewModel.totalCarbs
+            let totalFat = foodViewModel.totalFat
+            
             ScrollView {
                 VStack(alignment: .leading, spacing: 15) {
                     
@@ -40,12 +52,12 @@ struct DashboardView: View {
                                     .stroke(Color.gray.opacity(0.3), lineWidth: 10)
                                     .frame(width: 150, height: 150)
                                 Circle()
-                                    .trim(from: 0, to: 0.6) // food div by goal 
+                                    .trim(from: 0, to: progressDouble(user.goalCalories, foodViewModel.totalCalories)) // food div by goal
                                     .stroke(Color.blue, lineWidth: 10)
                                     .rotationEffect(.degrees(-90))
                                     .frame(width: 150, height: 150)
                                 VStack {
-                                    Text("800")
+                                    Text("\(user.goalCalories - foodViewModel.totalCalories)")
                                         .font(.largeTitle)
                                         .fontWeight(.bold)
                                     Text("Remaining calories")
@@ -55,10 +67,11 @@ struct DashboardView: View {
                                 }
                             }
                             
-                            VStack {
-                                miniInfo(title: "Goal", value: "1800", icon: "flag.fill")
-                                miniInfo(title: "Food", value: "1000", icon: "fork.knife")
+                            VStack(alignment: .leading) {
+                                miniInfo(title: "Goal", value: "\(user.goalCalories)", icon: "flag.fill")
+                                miniInfo(title: "Food", value: "\(foodViewModel.totalCalories)", icon: "fork.knife")
                             }
+                            .padding(.horizontal)
                         }
                         .padding(.horizontal)
                         
@@ -75,9 +88,9 @@ struct DashboardView: View {
                         .padding(.horizontal)
                     VStack {
                         HStack(spacing: 20) {
-                            NutritionView(title: "Protein", value: "27/29g", progress: 0.93)
-                            NutritionView(title: "Fat", value: "40/42g", progress: 0.95)
-                            NutritionView(title: "Carbs", value: "32/120g", progress: 0.27)
+                            NutritionView(title: "Protein", value: "\(totalProtein)/\(goalPro)g", progress: progressDouble(goalPro, totalProtein))
+                            NutritionView(title: "Fat", value: "\(totalFat)/\(goalFat)g", progress: progressDouble(goalFat, totalFat))
+                            NutritionView(title: "Carbs", value: "\(totalCarb)/\(goalCarb)g", progress: progressDouble(goalCarb, totalCarb))
                         }
                         .padding()
                     }
@@ -102,8 +115,26 @@ struct DashboardView: View {
                 }
             }
             .padding(.top)
+            .onAppear(){
+                foodViewModel.startListening(for: Date())
+            }
+            .onDisappear(){
+                foodViewModel.stopListening()
+            }
         }
     }
+    
+    private func progressDouble(_ goal: Int, _ currAmt: Int) -> Double {
+        if goal == 0 { return 0.0 } // Avoid division by zero
+        else if currAmt > goal { return 1.0 }
+        return min(Double(currAmt) / Double(goal), 1.0)
+    }
+    
+    private func progPro(_ goalCal: Int, _ food: Int) -> String {
+        
+        return ""
+    }
+    
 }
 
 // Custom View Components
@@ -176,7 +207,6 @@ struct miniInfo: View {
             }
         }
         .padding()
-        .frame(maxWidth: .infinity)
         .background(Color(.systemGray6))
         .cornerRadius(12)
     }
