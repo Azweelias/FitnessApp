@@ -1,8 +1,8 @@
 import SwiftUI
 
-struct FoodDetailsView: View {
-    let bFoodItem: String
-    @State var bFoodDetail: FoodResponse.Food?
+struct CFoodDetailsView: View {
+    let cFoodItem: String
+    @State var cFoodDetail: FoodResponse.Food?
     @State private var errorMessage: String?
     @State var showNutrition: Bool = false
     
@@ -13,7 +13,7 @@ struct FoodDetailsView: View {
             LinearGradient(gradient: Gradient(colors: [Color.cyan.opacity(0.9), Color.white.opacity(0.9)]), startPoint: .top, endPoint: .bottom)
                 .edgesIgnoringSafeArea(.all)
             VStack(spacing: 15) {
-                if let detail = bFoodDetail {
+                if let detail = cFoodDetail {
                     HStack {
                         VStack(alignment: .leading) {
                             Text(detail.food_name.capitalized)
@@ -115,7 +115,7 @@ struct FoodDetailsView: View {
             }
             .padding()
             .task {
-                //await getBFoodDet(bFoodId: bFoodItem) //TODO: Uncomment before demo
+                //await getCFoodDet(cFoodId: cFoodItem) //TODO: Uncomment before demo
             }
             .navigationBarBackButtonHidden(true)
             .toolbar {
@@ -145,10 +145,10 @@ struct FoodDetailsView: View {
     }
 
     // Async data-fetching function
-    public func getBFoodDet(bFoodId: String) async {
+    public func getCFoodDet(cFoodId: String) async {
         do {
-            let response = try await NutritionManager().getBFoodDetails(id: bFoodId)
-            bFoodDetail = response.foods.first
+            let response = try await NutritionManager().getCFoodDetails(id: cFoodId)
+            cFoodDetail = response.foods.first
         } catch {
             print(String(describing: error))
             errorMessage = "An Error Occurred"
@@ -156,5 +156,5 @@ struct FoodDetailsView: View {
     }
 }
 #Preview {
-    FoodDetailsView(bFoodItem: "2238121706c68498234d2778", bFoodDetail: previewFoodDetail.foods[0])
+    CFoodDetailsView(cFoodItem: "2238121706c68498234d2778", cFoodDetail: previewFoodDetail.foods[1])
 }

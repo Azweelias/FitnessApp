@@ -97,14 +97,22 @@ class AuthViewModel: ObservableObject {
     
     func addFoodToUser(food: FoodResponse.Food) async throws {
         guard let uid = Auth.auth().currentUser?.uid else { return }
+        
+        // Create a reference to a new food document (Firestore will automatically generate a unique ID)
         let foodRef = Firestore.firestore().collection("users").document(uid).collection("foods").document()
-
-            do {
-                try foodRef.setData(from: food, merge: true)
-                print("Food successfully added to Firestore with date!")
-            } catch {
-                print("Error adding food to Firestore: \(String(describing: error))")
-                throw error
-            }
+        
+        // Add the document ID to the food object before saving
+        var foodWithID = food
+        foodWithID.id = foodRef.documentID  // Assuming `FoodResponse.Food` has an optional `id` field
+        
+        do {
+            // Set data with the ID included
+            try foodRef.setData(from: foodWithID, merge: true)
+            print("Food successfully added to Firestore with date!")
+        } catch {
+            print("Error adding food to Firestore: \(String(describing: error))")
+            throw error
         }
+    }
+
 }

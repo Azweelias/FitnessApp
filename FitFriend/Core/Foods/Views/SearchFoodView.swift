@@ -7,7 +7,7 @@ struct SearchFoodView: View {
     @State var searchQuery = ""
     @State var searchResults: [SearchResponse.CommonFoodItem] = []
     @State var searchResultsB: [SearchResponse.BrandedFoodItem] = []
-    @State var bFoodDetail: FoodResponse.Food?
+    @State var FoodDetail: FoodResponse.Food?
     @State var isLoading = false
     @State var errorMessage: String?
     @State private var showAddedPopup = false
@@ -100,9 +100,12 @@ struct SearchFoodView: View {
                                     ForEach(searchResults, id: \.food_name) { item in
                                         HStack(spacing: 15) {
                                             VStack(alignment: .leading) {
-                                                Text(item.food_name.capitalized)
-                                                    .font(.headline)
-                                                    .foregroundColor(.blue)
+                                                NavigationLink(destination: FoodDetailsView(bFoodItem: item.food_name))
+                                                               {
+                                                    Text(item.food_name.capitalized)
+                                                        .font(.headline)
+                                                        .foregroundColor(.blue)
+                                                }
                                                 Text("\(item.fServingQty) \(item.serving_unit), (Generic)")
                                                     .font(.subheadline)
                                                     .foregroundColor(.gray)
@@ -112,6 +115,7 @@ struct SearchFoodView: View {
                                             
                                             Button(action: {
                                                 Task {
+                                                    await getCFoodDetAndAdd(cFoodId: item.food_name)
                                                     showAddedPopup = true
                                                     DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
                                                         showAddedPopup = false
@@ -188,15 +192,31 @@ struct SearchFoodView: View {
     public func getBFoodDetAndAdd(bFoodId: String) async {
         do {
             let response = try await NutritionManager().getBFoodDetails(id: bFoodId)
-            bFoodDetail = response.foods.first
+            FoodDetail = response.foods.first
             if (SelectedDate == Date())
             {
-                bFoodDetail?.dateAdded = Timestamp(date: Date())
+                FoodDetail?.dateAdded = Timestamp(date: Date())
             } else {
-                bFoodDetail?.dateAdded = Timestamp(date: SelectedDate)
+                FoodDetail?.dateAdded = Timestamp(date: SelectedDate)
             }
-            bFoodDetail?.mealTime = mealTime
-            try await viewModel.addFoodToUser(food: bFoodDetail!)
+            FoodDetail?.mealTime = mealTime
+            try await viewModel.addFoodToUser(food: FoodDetail!)
+        } catch {
+            errorMessage = String(describing: error)
+        }
+    }
+    public func getCFoodDetAndAdd(cFoodId: String) async {
+        do {
+            let response = try await NutritionManager().getCFoodDetails(id: cFoodId)
+            FoodDetail = response.foods.first
+            if (SelectedDate == Date())
+            {
+                FoodDetail?.dateAdded = Timestamp(date: Date())
+            } else {
+                FoodDetail?.dateAdded = Timestamp(date: SelectedDate)
+            }
+            FoodDetail?.mealTime = mealTime
+            try await viewModel.addFoodToUser(food: FoodDetail!)
         } catch {
             errorMessage = String(describing: error)
         }

@@ -4,6 +4,7 @@ import FirebaseFirestore
 
 class FoodViewModel: ObservableObject {
     @Published var foodEntries: [FoodResponse.Food] = []
+    @Published var selectedFood: FoodResponse.Food?
     @Published var totalCalories: Int = 0
     @Published var totalProtein: Int = 0
     @Published var totalFat: Int = 0
@@ -61,5 +62,26 @@ class FoodViewModel: ObservableObject {
     func stopListening() {
         listener?.remove()
         listener = nil
+    }
+    
+    func fetchFoodDetails(foodID: String) async throws {
+        guard let userID = Auth.auth().currentUser?.uid else { return }
+        
+        let foodRef = Firestore.firestore()
+            .collection("users").document(userID)
+            .collection("foods")
+            .document(foodID)
+        
+        let document = try await foodRef.getDocument()
+        
+        if let food = try document.data(as: FoodResponse.Food?.self) {
+            DispatchQueue.main.async {
+                self.selectedFood = food
+            }
+        } else {
+            DispatchQueue.main.async {
+                self.errorMessage = "Food not found!"
+            }
+        }
     }
 }

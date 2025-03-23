@@ -1,86 +1,76 @@
 import SwiftUI
 
-struct FoodDetailsView: View {
-    let bFoodItem: String
-    @State var bFoodDetail: FoodResponse.Food?
+struct DBFoodDetailView: View {
+    @StateObject var foodViewModel = FoodViewModel()
+    var foodEntry: String
+    @State private var foodDetail: FoodResponse.Food?
     @State private var errorMessage: String?
-    @State var showNutrition: Bool = false
-    
-    @Environment(\.dismiss) var dismiss
 
     var body: some View {
         ZStack {
             LinearGradient(gradient: Gradient(colors: [Color.cyan.opacity(0.9), Color.white.opacity(0.9)]), startPoint: .top, endPoint: .bottom)
                 .edgesIgnoringSafeArea(.all)
             VStack(spacing: 15) {
-                if let detail = bFoodDetail {
+                if let detail = foodDetail {
+                    // Display the food details like you did in FoodDetailsView
                     HStack {
                         VStack(alignment: .leading) {
                             Text(detail.food_name.capitalized)
                                 .font(.headline)
                                 .fontWeight(.bold)
-                            
                             Text("\(detail.fBrandName)")
                                 .font(.subheadline)
                                 .foregroundColor(.black)
                         }
                         Spacer()
                     }
-                    
+
                     HStack {
                         Text("Serving Size")
                             .font(.title3)
-                        
                         Spacer()
-                        
-                        Text ("\(detail.fServingQty) \(detail.serving_unit) (\(detail.fServingWeightGrams))")
+                        Text("\(detail.fServingQty) \(detail.serving_unit) (\(detail.fServingWeightGrams))")
                             .font(.body)
                     }
-                    
+
+                    // Nutrient details
                     HStack {
                         Text("Nutrients")
                             .font(.headline)
                             .underline()
                     }
                     .padding(.vertical)
-                    
-                    HStack() {
+
+                    HStack {
                         ZStack {
                             Circle()
-                                .fill(Color.gray.opacity(0.5)) // Set the circle's background color to navy
-                                .frame(width: 80, height: 80) // Set the size of the circle
-                            
+                                .fill(Color.gray.opacity(0.5))
+                                .frame(width: 80, height: 80)
                             VStack {
-                                Text("\(detail.fCalories)") // Display the calorie count
+                                Text("\(detail.fCalories)")
                                     .font(.headline)
-                                    .foregroundColor(.black) // Set the text color to white to contrast with the navy background
+                                    .foregroundColor(.black)
                                     .bold()
                                 Text("cal")
                                     .font(.subheadline)
                                     .foregroundColor(.black)
                             }
                         }
-                        
                         Spacer()
-                        
                         VStack {
                             Text("\(detail.fTotalCarb) g")
                                 .fontWeight(.semibold)
                             Text("Carbs")
                                 .font(.caption)
                         }
-                        
                         Spacer()
-                        
                         VStack {
                             Text("\(detail.fTotalFat) g")
                                 .fontWeight(.semibold)
                             Text("Fat")
                                 .font(.caption)
                         }
-                        
                         Spacer()
-                        
                         VStack {
                             Text("\(detail.fTotalProtein) g")
                                 .fontWeight(.semibold)
@@ -96,65 +86,46 @@ struct FoodDetailsView: View {
                         Spacer()
                     }
                     .padding(.vertical)
-                    
+
+                    // More nutritional info
                     NutrInfoRowView(label: "Saturated Fats", nutrInfo: detail.fSaturatedFat, unit: "g")
                     NutrInfoRowView(label: "Cholesterol", nutrInfo: detail.fCholesterol, unit: "mg")
                     NutrInfoRowView(label: "Dietary Fiber", nutrInfo: detail.fDietaryFiber, unit: "g")
                     NutrInfoRowView(label: "Sugar", nutrInfo: detail.fSugar, unit: "g")
                     NutrInfoRowView(label: "Sodium", nutrInfo: detail.fSodium, unit: "mg")
                     NutrInfoRowView(label: "Potassium", nutrInfo: detail.fPotassium, unit: "mg")
-                    
+
                 } else if let errorMessage = errorMessage {
                     Text("Error: \(errorMessage)")
                         .foregroundColor(.red)
                 } else {
                     ProgressView("Loading...")
                 }
-                
+
                 Spacer()
             }
             .padding()
             .task {
-                //await getBFoodDet(bFoodId: bFoodItem) //TODO: Uncomment before demo
-            }
-            .navigationBarBackButtonHidden(true)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    HStack {
-                        Button(action: {
-                            dismiss()
-                        }) {
-                            HStack {
-                                Image(systemName: "chevron.left")
-                                    .foregroundStyle(Color.black)
-                                Text("Results")
-                                    .foregroundStyle(Color.black)
-                            }
-                        }
-                        
-                        Text("Food Details")
-                            .foregroundStyle(Color.black)
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .padding()
-                    }
-                    .padding(.bottom)
-                }
+                // Fetch detailed food data using FoodViewModel's fetchFoodDetails
+                await fetchFoodDetail(foodID: foodEntry)
             }
         }
     }
 
-    // Async data-fetching function
-    public func getBFoodDet(bFoodId: String) async {
+    private func fetchFoodDetail(foodID: String) async {
         do {
-            let response = try await NutritionManager().getBFoodDetails(id: bFoodId)
-            bFoodDetail = response.foods.first
+            // Fetch food details from Firestore using the FoodViewModel's fetchFoodDetails function
+            try await foodViewModel.fetchFoodDetails(foodID: foodID)
+            if let fetchedFoodDetail = foodViewModel.selectedFood {  // Assuming the foodViewModel has a foodDetail property
+                foodDetail = fetchedFoodDetail
+            } else {
+                errorMessage = "Food details not found."
+            }
         } catch {
-            print(String(describing: error))
-            errorMessage = "An Error Occurred"
+            errorMessage = "An error occurred while fetching food details."
         }
     }
 }
 #Preview {
-    FoodDetailsView(bFoodItem: "2238121706c68498234d2778", bFoodDetail: previewFoodDetail.foods[0])
+    DBFoodDetailView(foodEntry: "RhUAzD7TZetctXOX30uJ")
 }

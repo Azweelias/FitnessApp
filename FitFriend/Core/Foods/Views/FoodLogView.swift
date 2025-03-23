@@ -47,32 +47,36 @@ struct FoodLogView: View {
                         .padding()
                 } else {
                     // Food Log
+                    // In FoodLogView.swift
                     List {
                         if foodViewModel.foodEntries.isEmpty {
                             Text("No food entries found for this date.")
                                 .foregroundColor(.gray)
                         } else {
-                            ForEach(foodViewModel.foodEntries, id: \.dateAdded) { entry in
-                                HStack {
-                                    VStack(alignment: .leading) {
-                                        Text("\(entry.food_name)")
-                                            .font(.headline)
-                                        HStack {
-                                            Text("\(entry.brand_name),")
-                                                .font(.subheadline)
-                                                .foregroundColor(.gray)
-                                            Text("\(entry.fServingQty) \(entry.serving_unit)")
-                                                .font(.subheadline)
-                                                .foregroundColor(.gray)
+                            ForEach(foodViewModel.foodEntries, id: \.id) { entry in
+                                NavigationLink(destination: DBFoodDetailView(foodEntry: entry.id ?? "")) {
+                                    HStack {
+                                        VStack(alignment: .leading) {
+                                            Text("\(entry.food_name)")
+                                                .font(.headline)
+                                            HStack {
+                                                Text("\(entry.fBrandName),")
+                                                    .font(.subheadline)
+                                                    .foregroundColor(.gray)
+                                                Text("\(entry.fServingQty) \(entry.serving_unit)")
+                                                    .font(.subheadline)
+                                                    .foregroundColor(.gray)
+                                            }
                                         }
+                                        Spacer()
+                                        Text("\(entry.fCalories) cal")
+                                            .fontWeight(.bold)
                                     }
-                                    Spacer()
-                                    Text("\(entry.fCalories) cal")
-                                        .fontWeight(.bold)
                                 }
                             }
                         }
                     }
+
                 }
 
                 // Add Food Button
