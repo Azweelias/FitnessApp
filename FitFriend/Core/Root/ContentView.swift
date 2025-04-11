@@ -10,7 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var viewModel: AuthViewModel
     
-    @State var selectedTab = 2
+    @State var selectedTab = 0
     @State private var hasAppeared = false
     
     init() {

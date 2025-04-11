@@ -1,12 +1,16 @@
 import SwiftUI
+import FirebaseCore
 
 struct CFoodDetailsView: View {
     let cFoodItem: String
+    let mealTime: String
+    let selectedDate: Date
     @State var cFoodDetail: FoodResponse.Food?
     @State private var errorMessage: String?
     @State var showNutrition: Bool = false
     
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var viewModel: AuthViewModel 
 
     var body: some View {
         ZStack {
@@ -137,6 +141,31 @@ struct CFoodDetailsView: View {
                             .font(.title)
                             .fontWeight(.bold)
                             .padding()
+                        
+                        Button(action: {
+                            Task {
+                                if let detail = cFoodDetail {
+                                    do {
+                                        // Update the food's mealTime and dateAdded based on the passed values.
+                                        var foodToAdd = detail
+                                        foodToAdd.mealTime = mealTime
+                                        if selectedDate == Date() {
+                                            foodToAdd.dateAdded = Timestamp(date: Date())
+                                        } else {
+                                            foodToAdd.dateAdded = Timestamp(date: selectedDate)
+                                        }
+                                        try await viewModel.addFoodToUser(food: foodToAdd)
+                                        // Optionally, you may provide confirmation or dismiss the view.
+                                    } catch {
+                                        errorMessage = "Failed to add food: \(error.localizedDescription)"
+                                    }
+                                }
+                            }
+                        }) {
+                            Image(systemName: "plus")
+                                .foregroundStyle(Color.blue)
+                        }
+                        .padding(.leading)
                     }
                     .padding(.bottom)
                 }
@@ -156,5 +185,9 @@ struct CFoodDetailsView: View {
     }
 }
 #Preview {
-    CFoodDetailsView(cFoodItem: "2238121706c68498234d2778", cFoodDetail: previewFoodDetail.foods[1])
+    CFoodDetailsView(cFoodItem: "orange",
+                     mealTime: "Breakfast",
+                     selectedDate: Date(),
+                     cFoodDetail: previewFoodDetail.foods[1])
+    .environmentObject(AuthViewModel())
 }

@@ -16,12 +16,27 @@ struct SearchFoodView: View {
     let SelectedDate: Date
 
     var body: some View {
-        NavigationView() {
+        NavigationView {
             ZStack {
-                LinearGradient(gradient: Gradient(colors: [Color.blue.opacity(0.9), Color.white.opacity(0.9)]), startPoint: .top, endPoint: .bottom)
+                LinearGradient(gradient: Gradient(colors: [Color.blue.opacity(0.9), Color.white.opacity(0.9)]),
+                               startPoint: .top,
+                               endPoint: .bottom)
                     .edgesIgnoringSafeArea(.all)
                 
                 VStack(spacing: 20) {
+                    // Combo Box (Meal Time Picker)
+                    Picker("Select Meal", selection: $mealTime) {
+                        Text("Breakfast").tag("Breakfast")
+                        Text("Lunch").tag("Lunch")
+                        Text("Dinner").tag("Dinner")
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                    .padding(.horizontal)
+                    .padding(.vertical, 5)
+                    .background(Color.white)
+                    .cornerRadius(10)
+                    .shadow(radius: 3)
+                    
                     // Search Bar
                     HStack(spacing: 12) {
                         TextField("Search for food...", text: $searchQuery)
@@ -59,12 +74,11 @@ struct SearchFoodView: View {
                         VStack {
                             ScrollView {
                                 VStack(spacing: 15) {
-                                    //branded foods
+                                    // Branded foods
                                     ForEach(searchResultsB, id: \.food_name) { item in
                                         HStack(spacing: 15) {
                                             VStack(alignment: .leading) {
-                                                NavigationLink(destination: FoodDetailsView(bFoodItem: item.nix_item_id))
-                                                               {
+                                                NavigationLink(destination: BFoodDetailsView(bFoodItem: item.nix_item_id, mealTime: mealTime, selectedDate: SelectedDate)) {
                                                     Text(item.food_name.capitalized)
                                                         .font(.headline)
                                                         .foregroundColor(.blue)
@@ -96,12 +110,11 @@ struct SearchFoodView: View {
                                         .background(Color.white)
                                         .cornerRadius(10)
                                     }
-                                    //common foods
+                                    // Common foods
                                     ForEach(searchResults, id: \.food_name) { item in
                                         HStack(spacing: 15) {
                                             VStack(alignment: .leading) {
-                                                NavigationLink(destination: FoodDetailsView(bFoodItem: item.food_name))
-                                                               {
+                                                NavigationLink(destination: CFoodDetailsView(cFoodItem: item.food_name, mealTime: mealTime, selectedDate: SelectedDate)) {
                                                     Text(item.food_name.capitalized)
                                                         .font(.headline)
                                                         .foregroundColor(.blue)
@@ -189,12 +202,12 @@ struct SearchFoodView: View {
 
         isLoading = false
     }
+    
     public func getBFoodDetAndAdd(bFoodId: String) async {
         do {
             let response = try await NutritionManager().getBFoodDetails(id: bFoodId)
             FoodDetail = response.foods.first
-            if (SelectedDate == Date())
-            {
+            if SelectedDate == Date() {
                 FoodDetail?.dateAdded = Timestamp(date: Date())
             } else {
                 FoodDetail?.dateAdded = Timestamp(date: SelectedDate)
@@ -205,12 +218,12 @@ struct SearchFoodView: View {
             errorMessage = String(describing: error)
         }
     }
+    
     public func getCFoodDetAndAdd(cFoodId: String) async {
         do {
             let response = try await NutritionManager().getCFoodDetails(id: cFoodId)
             FoodDetail = response.foods.first
-            if (SelectedDate == Date())
-            {
+            if SelectedDate == Date() {
                 FoodDetail?.dateAdded = Timestamp(date: Date())
             } else {
                 FoodDetail?.dateAdded = Timestamp(date: SelectedDate)

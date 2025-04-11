@@ -13,7 +13,7 @@ class FoodViewModel: ObservableObject {
     @Published var errorMessage: String?
     
     private var listener: ListenerRegistration?
-
+    
     /// Listens for real-time changes in food entries for a given date
     func startListening(for date: Date) {
         guard let userID = Auth.auth().currentUser?.uid else { return }
@@ -21,16 +21,16 @@ class FoodViewModel: ObservableObject {
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: date)
         let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
-
+        
         let startTimestamp = Timestamp(date: startOfDay)
         let endTimestamp = Timestamp(date: endOfDay)
-
+        
         let query = Firestore.firestore()
             .collection("users").document(userID)
             .collection("foods")
             .whereField("dateAdded", isGreaterThanOrEqualTo: startTimestamp)
             .whereField("dateAdded", isLessThan: endTimestamp)
-
+        
         // Remove previous listener (if any) to avoid duplicates
         listener?.remove()
         
@@ -41,13 +41,13 @@ class FoodViewModel: ObservableObject {
                 }
                 return
             }
-
+            
             guard let documents = snapshot?.documents else { return }
-
+            
             let fetchedEntries = documents.compactMap { document in
                 try? document.data(as: FoodResponse.Food.self)
             }
-
+            
             DispatchQueue.main.async {
                 self.foodEntries = fetchedEntries
                 self.totalCalories = Int(fetchedEntries.reduce(0) { $0 + $1.nf_calories })
@@ -57,11 +57,29 @@ class FoodViewModel: ObservableObject {
             }
         }
     }
-
+    
     /// Stop listening for real-time updates
     func stopListening() {
         listener?.remove()
         listener = nil
+    }
+    
+    /// Delete a food entry from Firestore
+    func deleteFoodEntry(food: FoodResponse.Food) {
+        guard let userID = Auth.auth().currentUser?.uid, let foodID = food.id else { return }
+        
+        let foodRef = Firestore.firestore()
+            .collection("users").document(userID)
+            .collection("foods").document(foodID)
+        
+        foodRef.delete { error in
+            if let error = error {
+                DispatchQueue.main.async {
+                    self.errorMessage = "Failed to delete food entry: \(error.localizedDescription)"
+                }
+            }
+            // The snapshot listener will update the foodEntries once deletion is complete.
+        }
     }
     
     func fetchFoodDetails(foodID: String) async throws {
