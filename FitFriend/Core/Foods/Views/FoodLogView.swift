@@ -32,7 +32,7 @@ struct FoodLogView: View {
                             foodViewModel.startListening(for: selectedDate)
                         }) {
                             Image(systemName: "chevron.left")
-                                .foregroundStyle(Color.blue)
+                                .foregroundStyle(Color.black)
                         }
                         Spacer()
                         // Tapping this button shows a custom small pop-up calendar.
@@ -50,7 +50,7 @@ struct FoodLogView: View {
                             foodViewModel.startListening(for: selectedDate)
                         }) {
                             Image(systemName: "chevron.right")
-                                .foregroundStyle(Color.blue)
+                                .foregroundStyle(Color.black)
                         }
                     }
                     .padding()

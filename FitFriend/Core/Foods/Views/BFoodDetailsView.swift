@@ -130,7 +130,7 @@ struct BFoodDetailsView: View {
             .padding()
         }
         .task {
-            //await getBFoodDet(bFoodId: bFoodItem) //TODO uncomment
+            await getBFoodDet(bFoodId: bFoodItem) //TODO uncomment
         }
         .navigationBarBackButtonHidden(true)
         .toolbar {

@@ -119,7 +119,7 @@ struct CFoodDetailsView: View {
             }
             .padding()
             .task {
-                //await getCFoodDet(cFoodId: cFoodItem) //TODO: Uncomment before demo
+                await getCFoodDet(cFoodId: cFoodItem) //TODO: Uncomment before demo
             }
             .navigationBarBackButtonHidden(true)
             .toolbar {

@@ -114,5 +114,40 @@ class AuthViewModel: ObservableObject {
             throw error
         }
     }
+    
+        /// Update password in FirebaseAuth
+        func updatePassword(to newPassword: String) async throws {
+            guard let user = Auth.auth().currentUser else {
+                throw NSError(domain: "Auth", code: 0, userInfo: [NSLocalizedDescriptionKey: "No current user"])
+            }
+            try await user.updatePassword(to: newPassword)
+        }
+
+        /// Update numeric profile fields in Firestore
+        func updateProfile(
+            height: Double,
+            weight: Double,
+            age: Int,
+            goalCalories: Int,
+            carbPercent: Double,
+            fatPercent: Double,
+            proPercent: Double
+        ) async throws {
+            guard let uid = Auth.auth().currentUser?.uid else {
+                throw NSError(domain: "Auth", code: 0, userInfo: [NSLocalizedDescriptionKey: "No current user"])
+            }
+            let data: [String: Any] = [
+                "height": height,
+                "weight": weight,
+                "age": age,
+                "goalCalories": goalCalories,
+                "carbPercent": carbPercent,
+                "fatPercent": fatPercent,
+                "proPercent": proPercent
+            ]
+            let ref = Firestore.firestore().collection("users").document(uid)
+            try await ref.updateData(data)
+            await fetchUser()    // refresh local copy
+        }
 
 }

@@ -23,44 +23,39 @@ struct ContentView: View {
         Group {
             if viewModel.userSession != nil {
                 TabView (selection: $selectedTab) {
-                    
                     // Homepage tab
                     DashboardView()
-//                        .environmentObject(locationManager)
-//                        .onAppear {
-//                            if !hasAppeared {
-//                                locationManager.requestLocation()
-//                                hasAppeared = true
-//                            }
-//                        }
                         .tabItem {
                             Label("Home", systemImage: "house")
                         }
                         .tag(0)
+                    
+                    // Exercise Log tab
+                    ExerciseTabView()
+                        .tabItem {
+                            Label("Exercise", systemImage: "figure.run")
+                        }
+                        .tag(1)
                     
                     // Food Log tab
                     FoodLogView()
                         .tabItem {
                             Label("Diary", systemImage: "fork.knife")
                         }
-                        .tag(1)
-//
-//                    // Add new tab
-//                    FoodLogView()
-//                        .tabItem {
-//                            Label("Food Log", systemImage: "fork.knife")
-//
-//                        }
-//                        .tag(1)
-//
+                        .tag(2)
+                    // Hydration Log Tab
+                    HydrationLogView()
+                        .tabItem {
+                            Label("Hydration", systemImage: "waterbottle")
+                        }
+                        .tag(3)
                     // Profile tab
                     ProfileView()
                         .tabItem {
                             Label("Profile", systemImage: "person.circle")
                         }
-                        .tag(2)
+                        .tag(4)
                 }
-                .accentColor(.white)
             } else {
                 SignInEmailView()
                     .onAppear {
